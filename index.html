@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Генератор методичної підтримки вчителів</title>
+    <!-- FontAwesome для сучасних іконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js для чистого експорту у формат PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        header h1 {
+            font-size: 26px;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            margin-top: 6px;
+        }
+
+        /* Форма введення */
+        .form-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .input-group input, .input-group select {
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            border-color: var(--primary);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: #fff;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-pdf {
+            background: #059669;
+            color: #fff;
+        }
+
+        .btn-pdf:hover {
+            background: #047857;
+        }
+
+        /* Дошка карток предметів */
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .subject-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .subject-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .meta-badges {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #eff6ff;
+            color: #1d4ed8;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-hours {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .resource-links {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .res-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #f1f5f9;
+            color: #334155;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: background 0.2s, color 0.2s;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .res-btn:hover {
+            background: #e2e8f0;
+            color: var(--primary);
+        }
+
+        .res-btn i {
+            font-size: 15px;
+            color: var(--primary);
+        }
+
+        .res-btn.disabled {
+            opacity: 0.45;
+            pointer-events: none;
+            background: #f8fafc;
+        }
+
+        .card-delete {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .card-delete:hover {
+            color: #ef4444;
+        }
+
+        /* Стилі для формування PDF */
+        @media print {
+            body { padding: 0; background: #fff; }
+            .form-card, .btn-pdf, .card-delete { display: none !important; }
+            .cards-grid { grid-template-columns: 1fr 1fr; }
+            .subject-card { box-shadow: none; border: 1px solid #cbd5e1; page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1><i class="fa-solid fa-graduation-cap"></i> Генератор методичної підтримки на навчальний рік</h1>
+        <p>Календарно-тематичне планування, модельні та навчальні програми, вебсайти й корисні лінки</p>
+    </header>
+
+    <!-- Блок форми наповнення -->
+    <div class="form-card">
+        <h2 style="font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+            <i class="fa-solid fa-folder-plus text-primary"></i> Додати предмет та методичні ресурси
+        </h2>
+        
+        <div class="form-grid">
+            <div class="input-group">
+                <label><i class="fa-solid fa-book-open"></i> Назва предмета</label>
+                <input type="text" id="subject" placeholder="напр., Інформатика (НУШ)" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-chalkboard-user"></i> Клас</label>
+                <input type="text" id="grade" placeholder="напр., 9-А або 7-9" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-clock"></i> Годин на рік / тиждень</label>
+                <input type="text" id="hours" placeholder="напр., 70 год (2 год/тижд)" required>
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-file-shield"></i> Модельна програма (посилання)</label>
+                <input type="url" id="modelProg" placeholder="https://mon.gov.ua/...">
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-file-lines"></i> Навчальна програма (посилання)</label>
+                <input type="url" id="curriculum" placeholder="https://drive.google.com/...">
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-calendar-days"></i> Календарне планування (КТП)</label>
+                <input type="url" id="ktp" placeholder="https://docs.google.com/...">
+            </div>
+            <div class="input-group">
+                <label><i class="fa-solid fa-globe"></i> Офіційний вебсайт / Підручник</label>
+                <input type="url" id="website" placeholder="напр., https://faino.school/">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="addCard()"><i class="fa-solid fa-plus"></i> Додати предмет</button>
+            <button class="btn btn-pdf" onclick="exportToPDF()"><i class="fa-solid fa-file-pdf"></i> Завантажити методичний звіт (PDF)</button>
+        </div>
+    </div>
+
+    <!-- Область візуалізації методичних карток -->
+    <div class="board-header">
+        <h2 style="font-size: 18px;"><i class="fa-solid fa-table-list"></i> Навчально-методичний комплекс вчителя</h2>
+        <span id="card-counter" style="color: var(--text-muted); font-size: 14px;">Предметів у списку: 0</span>
+    </div>
+
+    <div id="cardsContainer" class="cards-grid">
+        <!-- Картки генеруватимуться динамічно через JavaScript -->
+    </div>
+</div>
+
+<script>
+    // Початкові дані (інформатика 9 клас за підручником і модельною програмою Морзе, Барна)
+    const initialData = [
+        {
+            id: 1,
+            subject: "Інформатика (НУШ)",
+            grade: "9 клас",
+            hours: "70 год (2 год/тиждень)",
+            modelProg: "https://mon.gov.ua/",
+            curriculum: "https://faino.school/",
+            ktp: "https://qr.orioncentr.com.ua/xX7Rw",
+            website: "https://faino.school/"
+        }
+    ];
+
+    let items = JSON.parse(localStorage.getItem('teacher_method_data')) || initialData;
+
+    function renderCards() {
+        const container = document.getElementById('cardsContainer');
+        container.innerHTML = '';
+        document.getElementById('card-counter').innerText = `Предметів у списку: ${items.length}`;
+
+        items.forEach((item, index) => {
+            const card = document.createElement('div');
+            card.className = 'subject-card';
+            card.innerHTML = `
+                <button class="card-delete" title="Видалити предмет" onclick="deleteCard(${index})">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+                <div>
+                    <div class="subject-badge">
+                        <i class="fa-solid fa-book"></i> ${item.subject}
+                    </div>
+                    <div class="meta-badges">
+                        <span class="badge"><i class="fa-solid fa-users-rectangle"></i> ${item.grade}</span>
+                        <span class="badge badge-hours"><i class="fa-solid fa-stopwatch"></i> ${item.hours}</span>
+                    </div>
+                </div>
+
+                <div class="resource-links">
+                    <a href="${item.modelProg || '#'}" target="_blank" class="res-btn ${!item.modelProg ? 'disabled' : ''}" title="Модельна програма">
+                        <i class="fa-solid fa-award"></i> Модельна пр.
+                    </a>
+                    <a href="${item.curriculum || '#'}" target="_blank" class="res-btn ${!item.curriculum ? 'disabled' : ''}" title="Навчальна програма">
+                        <i class="fa-solid fa-file-contract"></i> Навчальна пр.
+                    </a>
+                    <a href="${item.ktp || '#'}" target="_blank" class="res-btn ${!item.ktp ? 'disabled' : ''}" title="Календарно-тематичний план">
+                        <i class="fa-solid fa-calendar-check"></i> КТП
+                    </a>
+                    <a href="${item.website || '#'}" target="_blank" class="res-btn ${!item.website ? 'disabled' : ''}" title="Вебсайт / Платформа">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Вебресурс
+                    </a>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+
+        localStorage.setItem('teacher_method_data', JSON.stringify(items));
+    }
+
+    function addCard() {
+        const subject = document.getElementById('subject').value.trim();
+        const grade = document.getElementById('grade').value.trim();
+        const hours = document.getElementById('hours').value.trim();
+        const modelProg = document.getElementById('modelProg').value.trim();
+        const curriculum = document.getElementById('curriculum').value.trim();
+        const ktp = document.getElementById('ktp').value.trim();
+        const website = document.getElementById('website').value.trim();
+
+        if (!subject || !grade || !hours) {
+            alert('Будь ласка, заповніть обовʼязкові поля: Предмет, Клас та Кількість годин!');
+            return;
+        }
+
+        items.push({
+            id: Date.now(),
+            subject,
+            grade,
+            hours,
+            modelProg,
+            curriculum,
+            ktp,
+            website
+        });
+
+        renderCards();
+
+        // Очищення форми
+        document.getElementById('subject').value = '';
+        document.getElementById('grade').value = '';
+        document.getElementById('hours').value = '';
+        document.getElementById('modelProg').value = '';
+        document.getElementById('curriculum').value = '';
+        document.getElementById('ktp').value = '';
+        document.getElementById('website').value = '';
+    }
+
+    function deleteCard(index) {
+        if(confirm('Видалити цей навчальний предмет із методичного комплексу?')) {
+            items.splice(index, 1);
+            renderCards();
+        }
+    }
+
+    function exportToPDF() {
+        const element = document.getElementById('cardsContainer');
+        const opt = {
+            margin:       10,
+            filename:     'Методична_підтримка_вчителя.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, useCORS: true },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+        };
+        html2pdf().set(opt).from(element).save();
+    }
+
+    // Первинне завантаження
+    renderCards();
+</script>
+
+</body>
+</html>
